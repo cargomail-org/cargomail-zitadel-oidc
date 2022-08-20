@@ -33,7 +33,11 @@ func main() {
 	//this will allow us to use an issuer with http:// instead of https://
 	os.Setenv(op.OidcDevMode, "true")
 
-	port := "9998"
+	defaultPort := "9998"
+	port := os.Getenv("PORT")
+	if len(port) == 0 {
+        port = defaultPort
+    }
 
 	//the OpenID Provider requires a 32-byte key for (token) encryption
 	//be sure to create a proper crypto random key and manage it securely!
