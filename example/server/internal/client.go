@@ -183,7 +183,7 @@ func WebClient(id, secret string, redirectURIs ...string) *Client {
 		grantTypes:                     []oidc.GrantType{oidc.GrantTypeCode, oidc.GrantTypeRefreshToken},
 		accessTokenType:                0,
 		devMode:                        false,
-		idTokenUserinfoClaimsAssertion: false,
+		idTokenUserinfoClaimsAssertion: true,
 		clockSkew:                      0,
 	}
 }

@@ -22,7 +22,7 @@ const (
 func init() {
 	internal.RegisterClients(
 		internal.NativeClient("native"),
-		internal.WebClient("web", "secret"),
+		internal.WebClient("web", "", "http://localhost:3000/auth/callback"),
 		internal.WebClient("api", "secret"),
 	)
 }
@@ -36,8 +36,8 @@ func main() {
 	defaultPort := "9998"
 	port := os.Getenv("PORT")
 	if len(port) == 0 {
-        port = defaultPort
-    }
+		port = defaultPort
+	}
 
 	//the OpenID Provider requires a 32-byte key for (token) encryption
 	//be sure to create a proper crypto random key and manage it securely!
@@ -90,9 +90,9 @@ func main() {
 	<-ctx.Done()
 }
 
-//newOP will create an OpenID Provider for localhost on a specified port with a given encryption key
-//and a predefined default logout uri
-//it will enable all options (see descriptions)
+// newOP will create an OpenID Provider for localhost on a specified port with a given encryption key
+// and a predefined default logout uri
+// it will enable all options (see descriptions)
 func newOP(ctx context.Context, storage op.Storage, port string, key [32]byte) (op.OpenIDProvider, error) {
 	config := &op.Config{
 		Issuer:    fmt.Sprintf("http://localhost:%s/", port),
