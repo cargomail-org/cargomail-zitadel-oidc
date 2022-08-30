@@ -56,7 +56,8 @@ func (a *AuthRequest) GetAMR() []string {
 }
 
 func (a *AuthRequest) GetAudience() []string {
-	return []string{a.ApplicationID} //this example will always just use the client_id as audience
+	// return []string{a.ApplicationID} //this example will always just use the client_id as audience
+	return []string{a.ApplicationID, "api"}
 }
 
 func (a *AuthRequest) GetAuthTime() time.Time {
