@@ -22,6 +22,7 @@ var (
 type Client struct {
 	id                             string
 	secret                         string
+	audiences                      []string
 	redirectURIs                   []string
 	applicationType                op.ApplicationType
 	authMethod                     oidc.AuthMethod
@@ -37,6 +38,11 @@ type Client struct {
 //GetID must return the client_id
 func (c *Client) GetID() string {
 	return c.id
+}
+
+//GetAudiences must return the registered audiences
+func (c *Client) GetAudiences() []string {
+	return c.audiences
 }
 
 //RedirectURIs must return the registered redirect_uris for Code and Implicit Flow
@@ -166,7 +172,7 @@ func NativeClient(id string, redirectURIs ...string) *Client {
 //user-defined redirectURIs may include:
 // - http://localhost with port specification (e.g. http://localhost:9999/auth/callback)
 //(the example will be used as default, if none is provided)
-func WebClient(id, secret string, redirectURIs ...string) *Client {
+func WebClient(id, secret string, audiences []string, redirectURIs ...string) *Client {
 	if len(redirectURIs) == 0 {
 		redirectURIs = []string{
 			"http://localhost:9999/auth/callback",
@@ -175,6 +181,7 @@ func WebClient(id, secret string, redirectURIs ...string) *Client {
 	return &Client{
 		id:                             id,
 		secret:                         secret,
+		audiences:                      audiences,
 		redirectURIs:                   redirectURIs,
 		applicationType:                op.ApplicationTypeWeb,
 		authMethod:                     oidc.AuthMethodBasic,

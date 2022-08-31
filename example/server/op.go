@@ -22,8 +22,10 @@ const (
 func init() {
 	internal.RegisterClients(
 		internal.NativeClient("native"),
-		internal.WebClient("web", "", "http://localhost:3000/auth/callback"),
-		internal.WebClient("api", "secret"),
+		// the app public client (frontend) has the webmail client (backend) as an audience
+		internal.WebClient("app", "", []string{"webmail"}, "http://localhost:3000/auth/callback"),
+		// the webmail confidential client (backend) has no audience
+		internal.WebClient("webmail", "secret", nil),
 	)
 }
 
