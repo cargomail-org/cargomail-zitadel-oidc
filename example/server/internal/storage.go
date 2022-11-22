@@ -107,11 +107,11 @@ func NewStorage() *storage {
 			},
 			"id5": {
 				id:                "id5",
-				username:          "marilla.cuthbert@federizer.org",
+				username:          "marilla.cuthbert@demo.localhost",
 				password:          "password",
 				firstname:         "Marilla",
 				lastname:          "Cuthbert",
-				email:             "marilla.cuthbert@federizer.org",
+				email:             "marilla.cuthbert@demo.localhost",
 				emailVerified:     true,
 				phone:             "",
 				phoneVerified:     false,
