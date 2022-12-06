@@ -186,7 +186,7 @@ func (s *Storage) CreateAccessToken(ctx context.Context, request op.TokenRequest
 	if ok {
 		applicationID = authReq.ApplicationID
 	}
-	token, err := s.accessToken(applicationID, "", request.GetSubject(), request.GetAudience(), request.GetScopes())
+	token, err := s.accessToken(applicationID, "", request.GetSubject(), clients[applicationID].GetAudiences(), request.GetScopes())
 	if err != nil {
 		return "", time.Time{}, err
 	}
@@ -202,7 +202,7 @@ func (s *Storage) CreateAccessAndRefreshTokens(ctx context.Context, request op.T
 	// if currentRefreshToken is empty (Code Flow) we will have to create a new refresh token
 	if currentRefreshToken == "" {
 		refreshTokenID := uuid.NewString()
-		accessToken, err := s.accessToken(applicationID, refreshTokenID, request.GetSubject(), request.GetAudience(), request.GetScopes())
+		accessToken, err := s.accessToken(applicationID, refreshTokenID, request.GetSubject(), clients[applicationID].GetAudiences(), request.GetScopes())
 		if err != nil {
 			return "", "", time.Time{}, err
 		}
@@ -219,7 +219,7 @@ func (s *Storage) CreateAccessAndRefreshTokens(ctx context.Context, request op.T
 	if err != nil {
 		return "", "", time.Time{}, err
 	}
-	accessToken, err := s.accessToken(applicationID, refreshTokenID, request.GetSubject(), request.GetAudience(), request.GetScopes())
+	accessToken, err := s.accessToken(applicationID, refreshTokenID, request.GetSubject(), clients[applicationID].GetAudiences(), request.GetScopes())
 	if err != nil {
 		return "", "", time.Time{}, err
 	}
