@@ -53,15 +53,26 @@ func (i *idTokenHintVerifier) MaxAge() time.Duration {
 	return i.maxAge
 }
 
-func NewIDTokenHintVerifier(issuer string, keySet oidc.KeySet) IDTokenHintVerifier {
+type IDTokenHintVerifierOpt func(*idTokenHintVerifier)
+
+func WithSupportedIDTokenHintSigningAlgorithms(algs ...string) IDTokenHintVerifierOpt {
+	return func(verifier *idTokenHintVerifier) {
+		verifier.supportedSignAlgs = algs
+	}
+}
+
+func NewIDTokenHintVerifier(issuer string, keySet oidc.KeySet, opts ...IDTokenHintVerifierOpt) IDTokenHintVerifier {
 	verifier := &idTokenHintVerifier{
 		issuer: issuer,
 		keySet: keySet,
 	}
+	for _, opt := range opts {
+		opt(verifier)
+	}
 	return verifier
 }
 
-//VerifyIDTokenHint validates the id token according to
+// VerifyIDTokenHint validates the id token according to
 //https://openid.net/specs/openid-connect-core-1_0.html#IDTokenValidation
 func VerifyIDTokenHint(ctx context.Context, token string, v IDTokenHintVerifier) (oidc.IDTokenClaims, error) {
 	claims := oidc.EmptyIDTokenClaims()

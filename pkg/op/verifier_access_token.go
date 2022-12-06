@@ -23,40 +23,51 @@ type accessTokenVerifier struct {
 	keySet            oidc.KeySet
 }
 
-//Issuer implements oidc.Verifier interface
+// Issuer implements oidc.Verifier interface
 func (i *accessTokenVerifier) Issuer() string {
 	return i.issuer
 }
 
-//MaxAgeIAT implements oidc.Verifier interface
+// MaxAgeIAT implements oidc.Verifier interface
 func (i *accessTokenVerifier) MaxAgeIAT() time.Duration {
 	return i.maxAgeIAT
 }
 
-//Offset implements oidc.Verifier interface
+// Offset implements oidc.Verifier interface
 func (i *accessTokenVerifier) Offset() time.Duration {
 	return i.offset
 }
 
-//SupportedSignAlgs implements AccessTokenVerifier interface
+// SupportedSignAlgs implements AccessTokenVerifier interface
 func (i *accessTokenVerifier) SupportedSignAlgs() []string {
 	return i.supportedSignAlgs
 }
 
-//KeySet implements AccessTokenVerifier interface
+// KeySet implements AccessTokenVerifier interface
 func (i *accessTokenVerifier) KeySet() oidc.KeySet {
 	return i.keySet
 }
 
-func NewAccessTokenVerifier(issuer string, keySet oidc.KeySet) AccessTokenVerifier {
+type AccessTokenVerifierOpt func(*accessTokenVerifier)
+
+func WithSupportedAccessTokenSigningAlgorithms(algs ...string) AccessTokenVerifierOpt {
+	return func(verifier *accessTokenVerifier) {
+		verifier.supportedSignAlgs = algs
+	}
+}
+
+func NewAccessTokenVerifier(issuer string, keySet oidc.KeySet, opts ...AccessTokenVerifierOpt) AccessTokenVerifier {
 	verifier := &accessTokenVerifier{
 		issuer: issuer,
 		keySet: keySet,
 	}
+	for _, opt := range opts {
+		opt(verifier)
+	}
 	return verifier
 }
 
-//VerifyAccessToken validates the access token (issuer, signature and expiration)
+// VerifyAccessToken validates the access token (issuer, signature and expiration)
 func VerifyAccessToken(ctx context.Context, token string, v AccessTokenVerifier) (oidc.AccessTokenClaims, error) {
 	claims := oidc.EmptyAccessTokenClaims()
 

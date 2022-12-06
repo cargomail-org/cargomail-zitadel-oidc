@@ -25,48 +25,53 @@ type Exchanger interface {
 
 func tokenHandler(exchanger Exchanger) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
-		grantType := r.FormValue("grant_type")
-		switch grantType {
-		case string(oidc.GrantTypeCode):
-			CodeExchange(w, r, exchanger)
-			return
-		case string(oidc.GrantTypeRefreshToken):
-			if exchanger.GrantTypeRefreshTokenSupported() {
-				RefreshTokenExchange(w, r, exchanger)
-				return
-			}
-		case string(oidc.GrantTypeBearer):
-			if ex, ok := exchanger.(JWTAuthorizationGrantExchanger); ok && exchanger.GrantTypeJWTAuthorizationSupported() {
-				JWTProfile(w, r, ex)
-				return
-			}
-		case string(oidc.GrantTypeTokenExchange):
-			if exchanger.GrantTypeTokenExchangeSupported() {
-				TokenExchange(w, r, exchanger)
-				return
-			}
-		case string(oidc.GrantTypeClientCredentials):
-			if exchanger.GrantTypeClientCredentialsSupported() {
-				ClientCredentialsExchange(w, r, exchanger)
-				return
-			}
-		case "":
-			RequestError(w, r, oidc.ErrInvalidRequest().WithDescription("grant_type missing"))
-			return
-		}
-		RequestError(w, r, oidc.ErrUnsupportedGrantType().WithDescription("%s not supported", grantType))
+		Exchange(w, r, exchanger)
 	}
 }
 
-//AuthenticatedTokenRequest is a helper interface for ParseAuthenticatedTokenRequest
-//it is implemented by oidc.AuthRequest and oidc.RefreshTokenRequest
+// Exchange performs a token exchange appropriate for the grant type
+func Exchange(w http.ResponseWriter, r *http.Request, exchanger Exchanger) {
+	grantType := r.FormValue("grant_type")
+	switch grantType {
+	case string(oidc.GrantTypeCode):
+		CodeExchange(w, r, exchanger)
+		return
+	case string(oidc.GrantTypeRefreshToken):
+		if exchanger.GrantTypeRefreshTokenSupported() {
+			RefreshTokenExchange(w, r, exchanger)
+			return
+		}
+	case string(oidc.GrantTypeBearer):
+		if ex, ok := exchanger.(JWTAuthorizationGrantExchanger); ok && exchanger.GrantTypeJWTAuthorizationSupported() {
+			JWTProfile(w, r, ex)
+			return
+		}
+	case string(oidc.GrantTypeTokenExchange):
+		if exchanger.GrantTypeTokenExchangeSupported() {
+			TokenExchange(w, r, exchanger)
+			return
+		}
+	case string(oidc.GrantTypeClientCredentials):
+		if exchanger.GrantTypeClientCredentialsSupported() {
+			ClientCredentialsExchange(w, r, exchanger)
+			return
+		}
+	case "":
+		RequestError(w, r, oidc.ErrInvalidRequest().WithDescription("grant_type missing"))
+		return
+	}
+	RequestError(w, r, oidc.ErrUnsupportedGrantType().WithDescription("%s not supported", grantType))
+}
+
+// AuthenticatedTokenRequest is a helper interface for ParseAuthenticatedTokenRequest
+// it is implemented by oidc.AuthRequest and oidc.RefreshTokenRequest
 type AuthenticatedTokenRequest interface {
 	SetClientID(string)
 	SetClientSecret(string)
 }
 
-//ParseAuthenticatedTokenRequest parses the client_id and client_secret from the HTTP request from either
-//HTTP Basic Auth header or form body and sets them into the provided authenticatedTokenRequest interface
+// ParseAuthenticatedTokenRequest parses the client_id and client_secret from the HTTP request from either
+// HTTP Basic Auth header or form body and sets them into the provided authenticatedTokenRequest interface
 func ParseAuthenticatedTokenRequest(r *http.Request, decoder httphelper.Decoder, request AuthenticatedTokenRequest) error {
 	err := r.ParseForm()
 	if err != nil {
@@ -93,7 +98,7 @@ func ParseAuthenticatedTokenRequest(r *http.Request, decoder httphelper.Decoder,
 	return nil
 }
 
-//AuthorizeClientIDSecret authorizes a client by validating the client_id and client_secret (Basic Auth and POST)
+// AuthorizeClientIDSecret authorizes a client by validating the client_id and client_secret (Basic Auth and POST)
 func AuthorizeClientIDSecret(ctx context.Context, clientID, clientSecret string, storage Storage) error {
 	err := storage.AuthorizeClientIDSecret(ctx, clientID, clientSecret)
 	if err != nil {
@@ -102,8 +107,8 @@ func AuthorizeClientIDSecret(ctx context.Context, clientID, clientSecret string,
 	return nil
 }
 
-//AuthorizeCodeChallenge authorizes a client by validating the code_verifier against the previously sent
-//code_challenge of the auth request (PKCE)
+// AuthorizeCodeChallenge authorizes a client by validating the code_verifier against the previously sent
+// code_challenge of the auth request (PKCE)
 func AuthorizeCodeChallenge(tokenReq *oidc.AccessTokenRequest, challenge *oidc.CodeChallenge) error {
 	if tokenReq.CodeVerifier == "" {
 		return oidc.ErrInvalidRequest().WithDescription("code_challenge required")
@@ -114,8 +119,8 @@ func AuthorizeCodeChallenge(tokenReq *oidc.AccessTokenRequest, challenge *oidc.C
 	return nil
 }
 
-//AuthorizePrivateJWTKey authorizes a client by validating the client_assertion's signature with a previously
-//registered public key (JWT Profile)
+// AuthorizePrivateJWTKey authorizes a client by validating the client_assertion's signature with a previously
+// registered public key (JWT Profile)
 func AuthorizePrivateJWTKey(ctx context.Context, clientAssertion string, exchanger JWTAuthorizationGrantExchanger) (Client, error) {
 	jwtReq, err := VerifyJWTAssertion(ctx, clientAssertion, exchanger.JWTProfileVerifier())
 	if err != nil {
@@ -131,7 +136,7 @@ func AuthorizePrivateJWTKey(ctx context.Context, clientAssertion string, exchang
 	return client, nil
 }
 
-//ValidateGrantType ensures that the requested grant_type is allowed by the Client
+// ValidateGrantType ensures that the requested grant_type is allowed by the Client
 func ValidateGrantType(client Client, grantType oidc.GrantType) bool {
 	if client == nil {
 		return false
