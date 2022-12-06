@@ -20,11 +20,8 @@ const (
 
 func init() {
 	storage.RegisterClients(
-		storage.NativeClient("native"),
-		// the app public client (frontend) has the webmail client (backend) as an audience
-		storage.WebClient("app", "", []string{"webmail"}, "http://localhost:3000/auth/callback"),
-		// the webmail confidential client (backend) has no audience
-		storage.WebClient("webmail", "secret", nil),
+		// the public client app (SPA) uses a confidential "service" client (backend API) as an audience claim
+		storage.WebClient("app", "", []string{"service"}, "http://localhost:3000/auth/callback"),
 	)
 }
 
