@@ -24,6 +24,7 @@ type Client struct {
 	secret                         string
 	audiences                      []string
 	redirectURIs                   []string
+	postLogoutRedirectURIs		   []string
 	applicationType                op.ApplicationType
 	authMethod                     oidc.AuthMethod
 	loginURL                       func(string) string
@@ -40,7 +41,7 @@ func (c *Client) GetID() string {
 	return c.id
 }
 
-//GetAudiences must return the registered audiences
+// GetAudiences must return the registered audiences
 func (c *Client) GetAudiences() []string {
 	return c.audiences
 }
@@ -52,7 +53,7 @@ func (c *Client) RedirectURIs() []string {
 
 // PostLogoutRedirectURIs must return the registered post_logout_redirect_uris for sign-outs
 func (c *Client) PostLogoutRedirectURIs() []string {
-	return []string{}
+	return c.postLogoutRedirectURIs
 }
 
 // ApplicationType must return the type of the client (app, native, user agent)
@@ -175,7 +176,7 @@ func NativeClient(id string, redirectURIs ...string) *Client {
 // user-defined redirectURIs may include:
 // - http://localhost with port specification (e.g. http://localhost:9999/auth/callback)
 //(the example will be used as default, if none is provided)
-func WebClient(id, secret string, audiences []string, redirectURIs ...string) *Client {
+func WebClient(id, secret string, audiences []string, redirectURIs []string, postLogoutRedirectURIs ...string) *Client {
 	if len(redirectURIs) == 0 {
 		redirectURIs = []string{
 			"http://localhost:9999/auth/callback",
@@ -186,6 +187,7 @@ func WebClient(id, secret string, audiences []string, redirectURIs ...string) *C
 		secret:                         secret,
 		audiences:                      audiences,
 		redirectURIs:                   redirectURIs,
+		postLogoutRedirectURIs:          postLogoutRedirectURIs,
 		applicationType:                op.ApplicationTypeWeb,
 		authMethod:                     oidc.AuthMethodBasic,
 		loginURL:                       defaultLoginURL,

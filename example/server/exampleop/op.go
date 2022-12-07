@@ -21,7 +21,7 @@ const (
 func init() {
 	storage.RegisterClients(
 		// the public client app (SPA) uses a confidential "service" client (backend API) as an audience claim
-		storage.WebClient("app", "", []string{"service"}, "http://localhost:3000/auth/callback"),
+		storage.WebClient("app", "", []string{"service"}, []string{"http://localhost:3000/auth/callback"}, "http://localhost:3000/signin"),
 	)
 }
 
