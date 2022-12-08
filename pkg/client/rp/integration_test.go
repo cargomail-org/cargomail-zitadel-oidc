@@ -41,7 +41,7 @@ func TestRelyingPartySession(t *testing.T) {
 
 	seed := rand.New(rand.NewSource(int64(os.Getpid()) + time.Now().UnixNano()))
 	clientID := t.Name() + "-" + strconv.FormatInt(seed.Int63(), 25)
-	client := storage.WebClient(clientID, "secret", []string{targetURL})
+	client := storage.WebClient(clientID, "secret", nil, []string{targetURL})
 	storage.RegisterClients(client)
 
 	jar, err := cookiejar.New(nil)

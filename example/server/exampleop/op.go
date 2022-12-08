@@ -20,8 +20,10 @@ const (
 
 func init() {
 	storage.RegisterClients(
-		// the public client app (SPA) uses a confidential "service" client (backend API) as an audience claim
-		storage.WebClient("app", "", []string{"service"}, []string{"http://localhost:3000/auth/callback"}, "http://localhost:3000/signin"),
+		// a resource owner uses "cargomail-client" to access resources in their "cargo-mailbox" at the RS
+		// cargomail-client" is registered as a public client using "cargo-mailbox" audience as authorization constraints
+		storage.WebClient("cargomail-client", "", []string{"cargo-mailbox"}, []string{"http://localhost:3000/auth/callback"}, "http://localhost:3000/signin"),
+		// the RS is regitered using an RSA keypair (see the cargo-mailbox-key1.json file and the example/server/storage/storage.go source file)
 	)
 }
 

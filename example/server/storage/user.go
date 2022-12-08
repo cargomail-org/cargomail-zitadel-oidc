@@ -102,7 +102,7 @@ func NewUserStore() UserStore {
 
 // ExampleClientID is only used in the example server
 func (u userStore) ExampleClientID() string {
-	return "service"
+	return "cargo-mailbox"
 }
 
 func (u userStore) GetUserByID(id string) *User {
